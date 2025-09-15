@@ -1,0 +1,67 @@
+Create a fully functional 2D web-based idle clicker game called "Become Fat Simulator" using HTML5, CSS, and JavaScript (with Canvas for rendering 2D graphics). Build it as an interactive single-page web application optimized for desktop and mobile devices, using modern web technologies like ES6+ JavaScript. Ensure a responsive design with a clean, intuitive user interface, incorporating a layout inspired by the provided reference image: place the player's chosen name above a character silhouette on the left side, and position a shop panel labeled "Shop and stuff" on the right side. Use simple vector-based or procedurally generated graphics for characters, items, and environments to keep it lightweight and compatible with Replit's runtime constraints.
+
+ Core Gameplay Concept
+The player controls a customizable character who starts slim and must click to eat various foods, gaining weight over time, with their appearance visually changing (e.g., body size increases in stages: slim, chubby, obese). Include idle progression where weight passively increases based on clicks and upgrades. Incorporate progression mechanics where weight gain unlocks new levels, rewards, and challenges. Track stats like weight, health, happiness, and energy, with balanced mechanics to avoid overeating penalties (e.g., reduced click efficiency if too heavy).
+
+ Layout and Interface Design (Based on Reference Image)
+- Split-Screen Layout:
+  - Left Panel (Character View): Display the character silhouette with the player's chosen name positioned above it as dynamic text. Show the character's current weight stage and basic stats (weight, health, happiness, energy) in a small HUD overlay. Include a clickable area on the character or a button to trigger eating actions, with animations when food is consumed.
+  - Right Panel (Shop and Stuff): Use the shop panel as a base for a dual-purpose interface, labeled "Shop and stuff" at the top. Include a tabbed or collapsible menu with:
+    - Cosmetic Shop: For hair, clothes, and accessories.
+    - Food Shop: For purchasing food items and upgrades.
+    - Inventory: To view and use stored items.
+  - Ensure the panels are resizable or toggleable (e.g., collapse the shop to fullscreen the character view) for flexibility across devices.
+
+ Key Features
+1. Character Creation and Naming:
+   - Prompt the player to input a name (text field, max 20 characters, with validation) at the start.
+   - Offer initial customization: gender (male and female ONLY), skin tone (5 options), and starting body type (always slim).
+   - Save data locally using Replit's localStorage or session storage for persistence within the session, noting Replit's ephemeral file system.
+
+2. Cosmetic Shop (Right Panel):
+   - Currency: Earn "calories" through clicks and idle gains.
+   - Items: 10+ hair styles (with colors), 15+ clothing items (size-adjusting), and accessories.
+   - UI: Grid layout with previews, prices (100-500 calories), and "buy" buttons. Real-time appearance updates upon purchase.
+   - Dressing room view for previewing combinations.
+
+3. Food Shop (Right Panel):
+   - Categories: Healthy (low gain, health boost), Junk (high gain, happiness risk), Desserts (massive gain, energy boost).
+   - 20+ food items with unique sprites, prices (50-300 calories), and effects (+10 weight, -5 energy).
+   - Upgrades: Click multipliers, auto-clickers, or idle gain boosts (e.g., +1 weight per second).
+   - Inventory: 10-slot backpack with click-to-eat or auto-consume functionality.
+   - Daily deals for engagement.
+
+4. Main Game Mechanics:
+   - Idle clicker mechanic: Clicking the character or a button adds weight (e.g., +1 per click, scalable with upgrades).
+   - Idle progression: Passive weight gain (e.g., +0.1 per second) increases with upgrades.
+   - Weight stages: Visual scaling (e.g., Stage 1: Slim – fast clicks; Stage 5: Very Fat – slower clicks but higher idle gains).
+   - Mini-games: Optional click-based challenges (e.g., rapid-click to eat a feast).
+   - Daily goals and achievements (e.g., "Reached 200lbs").
+
+5. User Interface and HUD:
+   - Left panel HUD: Name above character, weight bar, calorie balance, health/happiness/energy meters.
+   - Right panel: Tabbed shop and inventory access, labeled "Shop and stuff" at the top.
+   - Settings: Sound toggle, reset, save/load (using Replit's storage or export/import via text files).
+   - Tutorial pop-ups on first play.
+
+6. Audio and Visuals:
+   - Pixel art style (16x16 or 32x32 sprites) for characters, foods, and environments, hosted as base64-encoded data or simple SVG files within Replit.
+   - Background music and sound effects (e.g., eating crunch) using a lightweight web audio library compatible with Replit (e.g., Howler.js).
+
+7. Additional Features:
+   - Multi-language support (English, Spanish).
+   - Social sharing buttons (limited to Replit's console logs or clipboard due to hosting constraints).
+   - Idle progression based on session timestamps.
+   - Rare event items.
+   - Accessibility: Keyboard navigation, color-blind modes.
+
+ Technical Requirements
+- Optimize for Replit's runtime: Keep load time <5 seconds, target 30-60 FPS depending on device.
+- Error handling (e.g., alerts for storage or resource limits).
+- Structure code in Replit's file system (e.g., index.html, styles.css, script.js in the root) for easy editing with Agent.
+- Deployable within Replit's web view; use Replit's hosting for public access.
+- Avoid external dependencies requiring server-side processing; use client-side logic only.
+
+Generate the complete code (index.html, styles.css, script.js) with asset placeholders (e.g., base64-encoded images or SVGs). Provide instructions for running and testing within Replit. Suggest improvements if iterations are needed.
+
+
