@@ -18,6 +18,7 @@ export default function Game() {
     eatFood,
     buyCosmetic,
     buyUpgrade,
+    exercise,
   } = useGameState();
 
   if (!gameState.isInitialized) {
@@ -97,11 +98,7 @@ export default function Game() {
             <Button 
               data-testid="button-exercise"
               className="flex-1 bg-secondary text-secondary-foreground py-3 px-6 font-semibold game-button flex items-center justify-center gap-2"
-              onClick={() => {
-                // Simple exercise mechanic - lose some weight, gain energy
-                gameState.character.weight = Math.max(140, gameState.character.weight - 2);
-                gameState.character.energy = Math.min(100, gameState.character.energy + 10);
-              }}
+              onClick={exercise}
             >
               <i className="fas fa-dumbbell"></i>
               <span>Exercise</span>

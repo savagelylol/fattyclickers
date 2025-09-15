@@ -264,7 +264,16 @@ export function useGameState() {
 
   const buyUpgrade = useCallback((upgradeItem: UpgradeItem) => {
     setGameState(prev => {
-      const currentPrice = upgradeItem.price * Math.pow(2, prev.upgrades[upgradeItem.effect as keyof typeof prev.upgrades]);
+      let currentPrice;
+      
+      if (upgradeItem.effect === 'clickPower') {
+        // Calculate level from current clickPower (starts at 1, doubles each upgrade)
+        const level = Math.log2(prev.character.clickPower || 1);
+        currentPrice = upgradeItem.price * Math.pow(2, level);
+      } else {
+        currentPrice = upgradeItem.price * Math.pow(2, prev.upgrades[upgradeItem.effect as keyof typeof prev.upgrades]);
+      }
+      
       if (prev.currency.calories < currentPrice) return prev;
       
       const newState = { ...prev };
@@ -280,6 +289,21 @@ export function useGameState() {
     });
   }, []);
 
+  const exercise = useCallback(() => {
+    setGameState(prev => {
+      const newState = { ...prev };
+      
+      // Simple exercise mechanic - lose some weight, gain energy
+      newState.character.weight = Math.max(140, newState.character.weight - 2);
+      newState.character.energy = Math.min(100, newState.character.energy + 10);
+      
+      // Update weight stage
+      updateWeightStage(newState);
+      
+      return newState;
+    });
+  }, []);
+
   return {
     gameState,
     foodItems: FOOD_ITEMS,
@@ -290,5 +314,6 @@ export function useGameState() {
     eatFood,
     buyCosmetic,
     buyUpgrade,
+    exercise,
   };
 }
