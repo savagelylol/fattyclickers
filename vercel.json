@@ -6,7 +6,7 @@
       "use": "@vercel/static-build"
     }
   ],
-  "buildCommand": "npm run build",
+  "buildCommand": "vite build",
   "outputDirectory": "dist/public",
   "rewrites": [
     {
