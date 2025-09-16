@@ -6,7 +6,7 @@
       "use": "@vercel/static-build"
     }
   ],
-  "buildCommand": "vite build",
+  "buildCommand": "DATABASE_URL=placeholder vite build",
   "outputDirectory": "dist/public",
   "rewrites": [
     {

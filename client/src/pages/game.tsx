@@ -4,6 +4,7 @@ import { StatsHud } from '@/components/stats-hud';
 import { ShopPanel } from '@/components/shop-panel';
 import { useGameState } from '@/hooks/use-game-state';
 import { Button } from '@/components/ui/button';
+import { Flame, Weight, Star, Settings } from 'lucide-react';
 
 const weightStageNames = ['Slim', 'Chubby', 'Overweight', 'Obese', 'Very Fat'];
 
@@ -39,7 +40,7 @@ export default function Game() {
           {/* Currency Display */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full">
-              <i className="fas fa-fire text-sm"></i>
+              <Flame className="w-4 h-4" />
               <span className="font-mono font-semibold" data-testid="text-calories">
                 {Math.floor(gameState.currency.calories)}
               </span>
@@ -47,7 +48,7 @@ export default function Game() {
             </div>
             
             <div className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-full">
-              <i className="fas fa-weight text-sm"></i>
+              <Weight className="w-4 h-4" />
               <span className="font-mono font-semibold" data-testid="text-weight">
                 {Math.floor(gameState.character.weight)}
               </span>
@@ -56,7 +57,7 @@ export default function Game() {
 
             {gameState.rebirth.rebirthCount > 0 && (
               <div className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-full">
-                <i className="fas fa-star text-sm"></i>
+                <Star className="w-4 h-4" />
                 <span className="font-mono font-semibold" data-testid="text-rebirth-count">
                   {gameState.rebirth.rebirthCount}
                 </span>
@@ -65,7 +66,7 @@ export default function Game() {
             )}
 
             <button className="p-2 text-muted-foreground hover:text-foreground" title="Settings">
-              <i className="fas fa-cog text-xl"></i>
+              <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
