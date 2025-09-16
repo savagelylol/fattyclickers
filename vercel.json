@@ -1,6 +1,6 @@
 {
-  "buildCommand": "DATABASE_URL=placeholder vite build",
-  "outputDirectory": "dist/public",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
