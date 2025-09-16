@@ -1,5 +1,53 @@
 import { useState, useEffect, useCallback } from 'react';
-import { GameState, FoodItem, CosmeticItem, UpgradeItem } from '@/types/game';
+import { GameState, FoodItem, CosmeticItem, UpgradeItem, Achievement, DailyChallenge } from '@/types/game';
+
+const INITIAL_ACHIEVEMENTS: Achievement[] = [
+  {
+    id: 'first-click',
+    name: 'First Bite',
+    description: 'Click the character 10 times',
+    completed: false,
+    reward: 100,
+    icon: 'fas fa-mouse-pointer',
+    requirement: 10,
+  },
+  {
+    id: 'weight-gain',
+    name: 'Getting Started',
+    description: 'Reach 200 lbs',
+    completed: false,
+    reward: 500,
+    icon: 'fas fa-weight',
+    requirement: 200,
+  },
+  {
+    id: 'big-spender',
+    name: 'Big Spender',
+    description: 'Spend 10,000 calories',
+    completed: false,
+    reward: 2000,
+    icon: 'fas fa-coins',
+    requirement: 10000,
+  },
+  {
+    id: 'food-lover',
+    name: 'Food Lover',
+    description: 'Eat 50 food items',
+    completed: false,
+    reward: 1000,
+    icon: 'fas fa-utensils',
+    requirement: 50,
+  },
+  {
+    id: 'heavyweight',
+    name: 'Heavyweight',
+    description: 'Reach 500 lbs',
+    completed: false,
+    reward: 5000,
+    icon: 'fas fa-trophy',
+    requirement: 500,
+  },
+];
 
 const INITIAL_GAME_STATE: GameState = {
   character: {
@@ -27,6 +75,19 @@ const INITIAL_GAME_STATE: GameState = {
     hairstyle: 'default',
     clothing: 'default',
     accessories: [],
+  },
+  rebirth: {
+    rebirthCount: 0,
+    totalMultiplier: 1,
+    currentGoal: 1000000, // 1 million pounds
+  },
+  achievements: [...INITIAL_ACHIEVEMENTS],
+  dailyChallenge: null,
+  miniGames: {
+    lottery: {
+      lastPlay: 0,
+      dailyPlays: 0,
+    },
   },
   isInitialized: false,
 };
@@ -206,15 +267,21 @@ export function useGameState() {
   const clickCharacter = useCallback(() => {
     setGameState(prev => {
       const newState = { ...prev };
-      const gain = newState.character.clickPower * newState.upgrades.clickMultiplier;
+      const baseMultiplier = newState.character.clickPower * newState.upgrades.clickMultiplier * newState.rebirth.totalMultiplier;
       
-      newState.character.weight += gain;
-      newState.currency.calories += gain;
+      // Weight gain: 0.25 lbs per click (affected by multipliers)
+      const weightGain = 0.25 * baseMultiplier;
+      newState.character.weight += weightGain;
+      
+      // Calories gain: 1.5 per click (affected by multipliers) but rounded down
+      const caloriesGain = Math.floor(1.5 * baseMultiplier);
+      newState.currency.calories += caloriesGain;
       
       // Reduce energy slightly
       newState.character.energy = Math.max(0, newState.character.energy - 1);
       
       updateWeightStage(newState);
+      checkAchievements(newState);
       
       return newState;
     });
@@ -236,6 +303,7 @@ export function useGameState() {
       newState.character.energy = Math.max(0, Math.min(100, newState.character.energy + foodItem.energyEffect));
       
       updateWeightStage(newState);
+      checkAchievements(newState);
       
       return newState;
     });
@@ -304,6 +372,163 @@ export function useGameState() {
     });
   }, []);
 
+  const performRebirth = useCallback(() => {
+    setGameState(prev => {
+      const newState = { ...prev };
+      
+      // Increase rebirth count and multiplier
+      newState.rebirth.rebirthCount += 1;
+      newState.rebirth.totalMultiplier = 1 + (newState.rebirth.rebirthCount * 0.5); // 50% increase per rebirth
+      
+      // Set new goal (25x increase each time)
+      newState.rebirth.currentGoal = newState.rebirth.currentGoal * 25;
+      
+      // Reset character to starting stats but keep cosmetics and some upgrades
+      newState.character.weight = 150;
+      newState.character.weightStage = 1;
+      newState.character.health = 85;
+      newState.character.happiness = 70;
+      newState.character.energy = 60;
+      // Keep clickPower but reset other upgrades partially
+      newState.upgrades.clickMultiplier = Math.max(1, Math.floor(newState.upgrades.clickMultiplier / 2));
+      newState.upgrades.autoEater = Math.floor(newState.upgrades.autoEater / 2);
+      newState.upgrades.metabolismBooster = Math.floor(newState.upgrades.metabolismBooster / 2);
+      newState.upgrades.happinessMultiplier = Math.max(1, newState.upgrades.happinessMultiplier / 2);
+      
+      // Give some bonus calories
+      newState.currency.calories += 5000 * newState.rebirth.rebirthCount;
+      
+      return newState;
+    });
+  }, []);
+
+  // Check achievements progress
+  const checkAchievements = useCallback((newState: GameState) => {
+    newState.achievements.forEach((achievement) => {
+      if (!achievement.completed) {
+        let progress = 0;
+        switch (achievement.id) {
+          case 'weight-gain':
+          case 'heavyweight':
+            progress = newState.character.weight;
+            break;
+          case 'first-click':
+            // This would need click tracking - simplified for now
+            progress = newState.character.weight > 150 ? achievement.requirement : 0;
+            break;
+          default:
+            break;
+        }
+        
+        if (progress >= achievement.requirement) {
+          achievement.completed = true;
+          newState.currency.calories += achievement.reward;
+        }
+      }
+    });
+  }, []);
+
+  // Lottery mini-game
+  const playLottery = useCallback(() => {
+    setGameState(prev => {
+      const now = Date.now();
+      const today = new Date(now).toDateString();
+      const lastPlayDate = new Date(prev.miniGames.lottery.lastPlay).toDateString();
+      
+      const newState = { ...prev };
+      
+      // Reset daily plays if it's a new day
+      if (today !== lastPlayDate) {
+        newState.miniGames.lottery.dailyPlays = 0;
+      }
+      
+      // Check if player has plays left (max 3 per day)
+      if (newState.miniGames.lottery.dailyPlays >= 3) {
+        return prev; // No more plays today
+      }
+      
+      // Cost: 1000 calories
+      if (newState.currency.calories < 1000) {
+        return prev; // Not enough calories
+      }
+      
+      newState.currency.calories -= 1000;
+      newState.miniGames.lottery.lastPlay = now;
+      newState.miniGames.lottery.dailyPlays += 1;
+      
+      // Random outcomes
+      const random = Math.random();
+      let winnings = 0;
+      
+      if (random < 0.05) { // 5% chance - jackpot
+        winnings = 50000;
+      } else if (random < 0.15) { // 10% chance - big win
+        winnings = 10000;
+      } else if (random < 0.35) { // 20% chance - medium win
+        winnings = 3000;
+      } else if (random < 0.55) { // 20% chance - small win
+        winnings = 1500;
+      }
+      // 45% chance - no win
+      
+      newState.currency.calories += winnings;
+      
+      return newState;
+    });
+  }, []);
+
+  // Generate daily challenge
+  const generateDailyChallenge = useCallback(() => {
+    const challenges = [
+      {
+        id: 'daily-click',
+        name: 'Click Master',
+        description: 'Click the character 100 times',
+        progress: 0,
+        target: 100,
+        reward: 2000,
+        completed: false,
+        icon: 'fas fa-mouse-pointer',
+      },
+      {
+        id: 'daily-weight',
+        name: 'Weight Gain',
+        description: 'Gain 50 lbs today',
+        progress: 0,
+        target: 50,
+        reward: 3000,
+        completed: false,
+        icon: 'fas fa-weight',
+      },
+      {
+        id: 'daily-food',
+        name: 'Food Frenzy',
+        description: 'Eat 20 food items',
+        progress: 0,
+        target: 20,
+        reward: 2500,
+        completed: false,
+        icon: 'fas fa-utensils',
+      },
+    ];
+    
+    return challenges[Math.floor(Math.random() * challenges.length)];
+  }, []);
+
+  // Check if can play lottery
+  const canPlayLottery = useCallback(() => {
+    const now = Date.now();
+    const today = new Date(now).toDateString();
+    const lastPlayDate = new Date(gameState.miniGames.lottery.lastPlay).toDateString();
+    
+    const dailyPlays = today === lastPlayDate ? gameState.miniGames.lottery.dailyPlays : 0;
+    
+    return gameState.currency.calories >= 1000 && dailyPlays < 3;
+  }, [gameState.currency.calories, gameState.miniGames.lottery]);
+
+  // Check for rebirth eligibility
+  const canRebirth = gameState.character.weight >= gameState.rebirth.currentGoal;
+
   return {
     gameState,
     foodItems: FOOD_ITEMS,
@@ -315,5 +540,10 @@ export function useGameState() {
     buyCosmetic,
     buyUpgrade,
     exercise,
+    performRebirth,
+    canRebirth,
+    playLottery,
+    canPlayLottery,
+    generateDailyChallenge,
   };
 }

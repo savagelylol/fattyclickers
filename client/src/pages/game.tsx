@@ -19,6 +19,10 @@ export default function Game() {
     buyCosmetic,
     buyUpgrade,
     exercise,
+    performRebirth,
+    canRebirth,
+    playLottery,
+    canPlayLottery,
   } = useGameState();
 
   if (!gameState.isInitialized) {
@@ -50,6 +54,16 @@ export default function Game() {
               <span className="text-sm">lbs</span>
             </div>
 
+            {gameState.rebirth.rebirthCount > 0 && (
+              <div className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-full">
+                <i className="fas fa-star text-sm"></i>
+                <span className="font-mono font-semibold" data-testid="text-rebirth-count">
+                  {gameState.rebirth.rebirthCount}
+                </span>
+                <span className="text-sm">Rebirths</span>
+              </div>
+            )}
+
             <button className="p-2 text-muted-foreground hover:text-foreground" title="Settings">
               <i className="fas fa-cog text-xl"></i>
             </button>
@@ -71,6 +85,40 @@ export default function Game() {
               <span className="font-semibold text-primary ml-1" data-testid="text-weight-stage">
                 {weightStageNames[gameState.character.weightStage - 1]}
               </span>
+            </div>
+            
+            {/* Rebirth Progress */}
+            <div className="mt-4 bg-card p-4 rounded-xl border border-border">
+              <div className="text-sm text-muted-foreground mb-2">
+                Rebirth Goal: {(gameState.rebirth.currentGoal / 1000000).toFixed(1)}M lbs
+                {gameState.rebirth.totalMultiplier > 1 && (
+                  <span className="ml-2 text-purple-600 font-semibold">
+                    ({gameState.rebirth.totalMultiplier.toFixed(1)}x multiplier)
+                  </span>
+                )}
+              </div>
+              <div className="bg-muted rounded-full h-3 mb-3">
+                <div 
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${Math.min(100, (gameState.character.weight / gameState.rebirth.currentGoal) * 100)}%` 
+                  }}
+                />
+              </div>
+              <div className="text-xs text-muted-foreground text-center">
+                Progress: {((gameState.character.weight / gameState.rebirth.currentGoal) * 100).toFixed(2)}%
+              </div>
+              
+              {canRebirth && (
+                <Button
+                  onClick={performRebirth}
+                  data-testid="button-rebirth"
+                  className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105"
+                >
+                  <i className="fas fa-star mr-2"></i>
+                  REBIRTH!
+                </Button>
+              )}
             </div>
           </div>
 

@@ -27,12 +27,50 @@ export interface Cosmetics {
   accessories: string[];
 }
 
+export interface RebirthData {
+  rebirthCount: number;
+  totalMultiplier: number;
+  currentGoal: number;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  completed: boolean;
+  reward: number; // calories
+  icon: string;
+  requirement: number;
+}
+
+export interface DailyChallenge {
+  id: string;
+  name: string;
+  description: string;
+  progress: number;
+  target: number;
+  reward: number;
+  completed: boolean;
+  icon: string;
+}
+
+export interface MiniGameState {
+  lottery: {
+    lastPlay: number; // timestamp
+    dailyPlays: number;
+  };
+}
+
 export interface GameState {
   character: Character;
   currency: Currency;
   upgrades: Upgrades;
   inventory: FoodItem[];
   cosmetics: Cosmetics;
+  rebirth: RebirthData;
+  achievements: Achievement[];
+  dailyChallenge: DailyChallenge | null;
+  miniGames: MiniGameState;
   isInitialized: boolean;
 }
 

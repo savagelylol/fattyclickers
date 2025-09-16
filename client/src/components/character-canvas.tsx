@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Character } from '@/types/game';
 
 interface CharacterCanvasProps {
@@ -10,6 +10,8 @@ const skinTones = ['#FDBCB4', '#EAA186', '#C68642', '#8B4513', '#654321'];
 
 export function CharacterCanvas({ character, onCharacterClick }: CharacterCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [previousWeightStage, setPreviousWeightStage] = useState(character.weightStage);
+  const [isGrowthAnimating, setIsGrowthAnimating] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,8 +20,31 @@ export function CharacterCanvas({ character, onCharacterClick }: CharacterCanvas
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Check for weight stage increase
+    if (character.weightStage > previousWeightStage && previousWeightStage > 0) {
+      triggerGrowthAnimation();
+      setPreviousWeightStage(character.weightStage);
+    } else if (character.weightStage !== previousWeightStage) {
+      setPreviousWeightStage(character.weightStage);
+    }
+
     drawCharacter(ctx, character);
-  }, [character]);
+  }, [character, previousWeightStage]);
+
+  const triggerGrowthAnimation = () => {
+    setIsGrowthAnimating(true);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      // Add multiple classes for a funky animation
+      canvas.classList.add('growth-animation', 'bounce-animation', 'glow-animation');
+      
+      // Remove animation classes after animation completes
+      setTimeout(() => {
+        canvas.classList.remove('growth-animation', 'bounce-animation', 'glow-animation');
+        setIsGrowthAnimating(false);
+      }, 1500); // 1.5 second animation
+    }
+  };
 
   const drawCharacter = (ctx: CanvasRenderingContext2D, character: Character) => {
     const canvas = ctx.canvas;
